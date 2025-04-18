@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  ravendb:
+    image: ravendb/ravendb:latest
+    container_name: ravendb
+    environment:
+      - RAVEN_Setup_Mode=None
+      - RAVEN_License_Eula_Accepted=true
+      - RAVEN_Security_UnsecuredAccessAllowed=PublicNetwork
+    ports:
+      - "8080:8080" # Map RavenDB's HTTP port
+    volumes:
+      - ravendb_data:/ravendb/data
+      - ravendb_logs:/ravendb/logs
+      - ravendb_settings:/ravendb/settings
+volumes:
+  ravendb_data:
+  ravendb_logs:
+  ravendb_settings:
