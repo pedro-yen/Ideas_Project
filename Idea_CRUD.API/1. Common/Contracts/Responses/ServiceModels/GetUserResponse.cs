@@ -5,6 +5,6 @@ namespace Backend.Challenge.ServiceModels
 {
     public class GetUserResponse
     {
-        public Dictionary<int, UserDto> Users { get; set; }
+        public Dictionary<int, User> Users { get; set; }
     }
 }

@@ -32,7 +32,7 @@ public class MainController : Controller
     {
         return new GetUserResponse
         {
-            Users = id.ToDictionary(i => i, i => new UserDto
+            Users = id.ToDictionary(i => i, i => new User
             {
                 Id = i,
                 Username = $"User {i}",
