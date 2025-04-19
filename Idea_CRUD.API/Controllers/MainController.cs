@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Backend.Challenge.BusinessManager;
+using Backend.Challenge.Data.Models;
 using Backend.Challenge.Dtos;
-using Backend.Challenge.Object;
 using Backend.Challenge.ServiceModels;
 using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents;
@@ -14,10 +15,14 @@ namespace Backend.Challenge.Controllers;
 public class MainController : Controller
 {
     private readonly IDocumentStore _store;
+    private readonly IUsersBusinessManager _usersBusinessManager;
+    private readonly IIdeasBusinessManager _ideasBusinessManager;
 
-    public MainController(IDocumentStore store)
+    public MainController(IDocumentStore store, IUsersBusinessManager usersBusinessManager,IIdeasBusinessManager ideasBusinessManager)
     {
         _store = store;
+        _usersBusinessManager = usersBusinessManager;
+        _ideasBusinessManager = ideasBusinessManager;
     }
 
     #region Users

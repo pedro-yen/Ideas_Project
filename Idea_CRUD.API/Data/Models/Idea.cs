@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Backend.Challenge.Object
+namespace Backend.Challenge.Data.Models
 {
     public class Idea
     {

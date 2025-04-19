@@ -7,6 +7,7 @@ using Raven.Client.Documents;
 using Raven.Client.ServerWide.Operations;
 using Raven.Client.ServerWide;
 using System.Linq;
+using Backend.Challenge.BusinessManager;
 
 namespace Backend.Challenge
 {
@@ -26,6 +27,7 @@ namespace Backend.Challenge
 
             services.AddControllers();
 
+            #region IOC
             // Register RavenDB DocumentStore
             services.AddSingleton<IDocumentStore>(provider =>
             {
@@ -64,6 +66,9 @@ namespace Backend.Challenge
                 // Only set this AFTER the DB is created
                 return store;
             });
+            services.AddSingleton<IUsersBusinessManager, UsersBusinessManager>();
+            services.AddSingleton<IIdeasBusinessManager, IdeasBusinessManager>();
+            #endregion
 
             // Add Swagger services
             services.AddSwaggerGen();
