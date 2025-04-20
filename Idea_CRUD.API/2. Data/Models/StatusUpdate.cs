@@ -1,15 +1,18 @@
-﻿using System;
+﻿using Backend.Challenge._1._Common.Contracts.Enum;
+using System;
+using System.Collections.Generic;
 
 namespace Backend.Challenge.Data.Models
 {
     public class StatusUpdate
     {
-        public string Id { get; set; } // RavenDB auto-generates if you leave this null
+        public string Id { get; set; }
         public string IdeaId { get; set; }
         public string Title { get; set; }
         public string SummaryHtml { get; set; }
-        public string Author { get; set; }
         public DateTime PublishedAtUtc { get; set; }
-        public string Status { get; set; } // e.g. "on track", "at risk", "off track"
+        public EStatus Status { get; set; }
+        public string AuthorId { get; set; }
+        public List<string> SeenByUserIds { get; set; } = [];
     }
 }

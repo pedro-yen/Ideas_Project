@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Backend.Challenge._1._Common.Contracts.Requests.Idea;
 using Backend.Challenge._1._Common.Contracts.Requests.Users;
 using Backend.Challenge.BusinessManager;
 using Backend.Challenge.Data.Models;
@@ -28,12 +29,22 @@ public class MainController : Controller
     }
 
     #region Users
+    /// <summary>
+    /// Create new User
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("users")]
     public async Task<IActionResult> CreateNewUser(CreateUserRequest request)
     {
         return Ok(await _usersBusinessManager.CreateNewUser(request));
     }
 
+    /// <summary>
+    /// Gets Users by Id -- if Empty returns all users
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <returns></returns>
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers([FromQuery] string[] ids)
     {
@@ -45,72 +56,89 @@ public class MainController : Controller
 
         catch (KeyNotFoundException ex)
         {
-            return NotFound(ex.Message); // Return 404 if no users are found
+            return NotFound(ex.Message);
         }
     }
     #endregion
 
     #region Idea
+    /// <summary>
+    /// Create Idea
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("idea")]
-    public async Task<IActionResult> CreateIdea(Idea idea)
+    public async Task<IActionResult> CreateIdea(CreateIdeiaRequest request)
     {
-        using var session = _store.OpenAsyncSession();
 
-        idea.CreatedAtUtc = DateTime.UtcNow;
-
-        await session.StoreAsync(idea);
-        await session.SaveChangesAsync();
-
-        return Ok(idea); // Now you can use idea.Id when creating StatusUpdates
-    }
-
-    [HttpGet("idea/{id}")]
-    public async Task<IActionResult> GetIdea(string id)
-    {
-        using var session = _store.OpenAsyncSession();
-
-        var idea = await session.LoadAsync<Idea>(id);
-
-        if (idea == null)
-            return NotFound();
+        var idea = await _ideasBusinessManager.CreateIdeaAsync(request);
 
         return Ok(idea);
     }
+
+    /// <summary>
+    /// Gets all Ideas for User
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet("users/{userId}/ideas")]
+    public async Task<IActionResult> GetIdeasForUser(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        var decodedId = Uri.UnescapeDataString(userId);
+        var ideas = await _ideasBusinessManager.GetIdeasForUserAsync(decodedId, pageNumber, pageSize);
+        return Ok(ideas);
+    }
+
+
     #endregion
 
-    #region StatusUpdate
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get(string id)
+    #region Update
+    /// <summary>
+    /// Gets all unseen updates for a userId
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet("users/{userId}/unseen-updates")]
+    public async Task<IActionResult> GetUnseenUpdates(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        using var session = _store.OpenAsyncSession();
+        var decodedUserId = Uri.UnescapeDataString(userId);
+        var unseenUpdates = await _ideasBusinessManager.GetUnseenUpdatesForUserAsync(decodedUserId, pageNumber, pageSize);
+        return Ok(unseenUpdates);
+    }
 
-        var update = await session.LoadAsync<StatusUpdate>(id);
+    /// <summary>
+    /// Gets All updates for an idea
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("ideas/{ideaId}")]
+    public async Task<IActionResult> GetUpdatesForIdea(string ideaId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        var decodedId = Uri.UnescapeDataString(ideaId);
+        var updates = await _ideasBusinessManager.GetUpdatesForIdeaAsync(decodedId, pageNumber, pageSize);
 
-        if (update == null)
+        if (updates == null)
             return NotFound();
 
-        return Ok(update);
+        return Ok(updates);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(StatusUpdate update)
+
+    [HttpPost("ideas/update/{ideaId}")]
+    public async Task<IActionResult> CreateUpdate(string ideaId, [FromBody] CreateStatusUpdateRequest request)
     {
-        using var session = _store.OpenAsyncSession();
-
-        // 🛡️ 1. Check if the Idea exists
-        var idea = await session.LoadAsync<Idea>(update.IdeaId);
-        if (idea == null)
+        try
         {
-            return BadRequest($"Idea with ID '{update.IdeaId}' does not exist.");
+            var update = await _ideasBusinessManager.CreateUpdateAsync(ideaId, request);
+            return Ok(update);
         }
-
-        // 2. Set timestamps and store
-        update.PublishedAtUtc = DateTime.UtcNow;
-        await session.StoreAsync(update);
-        await session.SaveChangesAsync();
-
-        return Ok(update);
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
+
+    // TODO: MARK SEEN
     #endregion
     // TODO: An action to return a paged list of status updates
 

@@ -9,6 +9,9 @@ using Raven.Client.ServerWide;
 using System.Linq;
 using Backend.Challenge.BusinessManager;
 using Backend.Challenge._2._Data.Repositories;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using System.Text.Json.Serialization;
 
 namespace Backend.Challenge
 {
@@ -26,9 +29,15 @@ namespace Backend.Challenge
         {
             services.AddRazorPages();
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(opts =>
+            {
+                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
             #region IOC
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssemblyContaining<Startup>();
+
             // Register RavenDB DocumentStore
             services.AddSingleton<IDocumentStore>(provider =>
             {
