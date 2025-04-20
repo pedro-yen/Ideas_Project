@@ -31,41 +31,40 @@ namespace Backend.Challenge.BusinessManager
         }
         public async Task<GetUserResponse> GetUsersAsync(string[] ids)
         {
-            List<User> users;
+            var users= new List<User>();
             if (ids == null || ids.Length == 0)
             {
-                // Fetch all users
-                users = await _repository.GetAllUsersAsync();
-
+                users = await FetchAllUsers(users);
             }
             else
             {
                 users = await FetchUsersById(ids);
             }
 
+            if (users == null || users.Count == 0 )
+            {
+                throw new KeyNotFoundException("No users were found for the provided IDs.");
+            }
+
             return new GetUserResponse
             {
                 Users = users.ToDictionary(
-                    u => u.Id,
+                    u => u?.Id,
                     u => u
                 )
             };
         }
 
+        private async Task<List<User>> FetchAllUsers(List<User> users)
+        {
+            users = await _repository.GetAllUsersAsync();
+            return users;
+        }
+
         private async Task<List<User>> FetchUsersById(string[] ids)
         {
             // Fetch specific users by IDs
-            var users = await _repository.GetUsersByIdsAsync(ids);
-            var foundIds = users.Select(u => u.Id).ToArray();
-            var notFoundIds = ids.Except(foundIds).ToArray();
-
-            //Log unfound ids
-            if (notFoundIds.Any())
-            {
-                Console.WriteLine($"The following IDs were not found: {string.Join(", ", notFoundIds)}");
-            }
-
-            return users;
+            return await _repository.GetUsersByIdsAsync(ids);
         }
     }
 }

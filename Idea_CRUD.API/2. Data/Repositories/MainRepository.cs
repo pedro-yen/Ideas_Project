@@ -32,8 +32,10 @@ namespace Backend.Challenge._2._Data.Repositories
         public async Task<List<User>> GetUsersByIdsAsync(string[] ids)
         {
             using var session = _store.OpenAsyncSession();
-            var users = await session.LoadAsync<User>(ids);
-            return users.Values.ToList();
+            var usersDictionary = await session.LoadAsync<User>(ids); // Users dictionary with nulls for missing IDs
+            var users = usersDictionary.Values.Where(u => u != null).ToList(); // Filter out null values
+
+            return users;
         }
     }
 }

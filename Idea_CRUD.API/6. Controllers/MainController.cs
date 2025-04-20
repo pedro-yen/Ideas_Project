@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Backend.Challenge._1._Common.Contracts.Requests.Users;
@@ -36,25 +37,17 @@ public class MainController : Controller
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers([FromQuery] string[] ids)
     {
-        var response = await _usersBusinessManager.GetUsersAsync(ids);
-        return Ok(response); 
-    }
+        try
+        {
+            var response = await _usersBusinessManager.GetUsersAsync(ids);
+            return Ok(response);
+        }
 
-    //[HttpGet("users")]
-    //// This action responds to the url /main/users/42 and /main/users?id=4&id=10
-    //public GetUserResponse GetUsers(string[] id)
-    //{
-    //    return null;
-    //    //    new GetUserResponse
-    //    //{
-    //    //    Users = id.ToDictionary(i => i, i => new User
-    //    //    {
-    //    //        Id = i,
-    //    //        Username = $"User {i}",
-    //    //        Email = $"user-{i}@example.com"
-    //    //    })
-    //    //};
-    //}
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message); // Return 404 if no users are found
+        }
+    }
     #endregion
 
     #region Idea
