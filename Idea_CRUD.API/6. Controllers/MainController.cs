@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Backend.Challenge._1._Common.Contracts.Requests.Users;
 using Backend.Challenge.BusinessManager;
 using Backend.Challenge.Data.Models;
 using Backend.Challenge.Dtos;
@@ -26,20 +27,34 @@ public class MainController : Controller
     }
 
     #region Users
-    [HttpGet("users")]
-    // This action responds to the url /main/users/42 and /main/users?id=4&id=10
-    public GetUserResponse Users(int[] id)
+    [HttpPost("users")]
+    public async Task<IActionResult> CreateNewUser(CreateUserRequest request)
     {
-        return new GetUserResponse
-        {
-            Users = id.ToDictionary(i => i, i => new User
-            {
-                Id = i,
-                Username = $"User {i}",
-                Email = $"user-{i}@example.com"
-            })
-        };
+        return Ok(await _usersBusinessManager.CreateNewUser(request));
     }
+
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers([FromQuery] string[] ids)
+    {
+        var response = await _usersBusinessManager.GetUsersAsync(ids);
+        return Ok(response); 
+    }
+
+    //[HttpGet("users")]
+    //// This action responds to the url /main/users/42 and /main/users?id=4&id=10
+    //public GetUserResponse GetUsers(string[] id)
+    //{
+    //    return null;
+    //    //    new GetUserResponse
+    //    //{
+    //    //    Users = id.ToDictionary(i => i, i => new User
+    //    //    {
+    //    //        Id = i,
+    //    //        Username = $"User {i}",
+    //    //        Email = $"user-{i}@example.com"
+    //    //    })
+    //    //};
+    //}
     #endregion
 
     #region Idea

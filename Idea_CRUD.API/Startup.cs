@@ -8,6 +8,7 @@ using Raven.Client.ServerWide.Operations;
 using Raven.Client.ServerWide;
 using System.Linq;
 using Backend.Challenge.BusinessManager;
+using Backend.Challenge._2._Data.Repositories;
 
 namespace Backend.Challenge
 {
@@ -68,6 +69,7 @@ namespace Backend.Challenge
             });
             services.AddSingleton<IUsersBusinessManager, UsersBusinessManager>();
             services.AddSingleton<IIdeasBusinessManager, IdeasBusinessManager>();
+            services.AddSingleton<IRepository, MainRepository>();
             #endregion
 
             // Add Swagger services
