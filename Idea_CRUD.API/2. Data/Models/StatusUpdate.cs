@@ -13,6 +13,6 @@ namespace Backend.Challenge.Data.Models
         public DateTime PublishedAtUtc { get; set; }
         public EStatus Status { get; set; }
         public string AuthorId { get; set; }
-        public List<string> SeenByUserIds { get; set; } = [];
+        public Dictionary<string, DateTime> SeenByUserIds { get; set; } = new Dictionary<string, DateTime>();
     }
 }

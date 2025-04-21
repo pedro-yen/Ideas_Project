@@ -1,65 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Backend.Challenge._1._Common.Contracts.Requests.Idea;
-using Backend.Challenge._1._Common.Contracts.Requests.Users;
+﻿using Backend.Challenge._1._Common.Contracts.Requests.Idea;
 using Backend.Challenge.BusinessManager;
-using Backend.Challenge.Data.Models;
-using Backend.Challenge.Dtos;
-using Backend.Challenge.ServiceModels;
 using Microsoft.AspNetCore.Mvc;
-using Raven.Client.Documents;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
+using Backend.Challenge.Data.Models;
 
-namespace Backend.Challenge.Controllers;
+namespace Backend.Challenge._6._Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MainController : Controller
+public class IdeasController : Controller
 {
-    private readonly IDocumentStore _store;
-    private readonly IUsersBusinessManager _usersBusinessManager;
     private readonly IIdeasBusinessManager _ideasBusinessManager;
 
-    public MainController(IDocumentStore store, IUsersBusinessManager usersBusinessManager,IIdeasBusinessManager ideasBusinessManager)
+    public IdeasController(IIdeasBusinessManager ideasBusinessManager)
     {
-        _store = store;
-        _usersBusinessManager = usersBusinessManager;
         _ideasBusinessManager = ideasBusinessManager;
     }
-
-    #region Users
-    /// <summary>
-    /// Create new User
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    [HttpPost("users")]
-    public async Task<IActionResult> CreateNewUser(CreateUserRequest request)
-    {
-        return Ok(await _usersBusinessManager.CreateNewUser(request));
-    }
-
-    /// <summary>
-    /// Gets Users by Id -- if Empty returns all users
-    /// </summary>
-    /// <param name="ids"></param>
-    /// <returns></returns>
-    [HttpGet("users")]
-    public async Task<IActionResult> GetUsers([FromQuery] string[] ids)
-    {
-        try
-        {
-            var response = await _usersBusinessManager.GetUsersAsync(ids);
-            return Ok(response);
-        }
-
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-    }
-    #endregion
 
     #region Idea
     /// <summary>
@@ -109,7 +67,7 @@ public class MainController : Controller
     /// <summary>
     /// Gets All updates for an idea
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="ideaId"></param>
     /// <returns></returns>
     [HttpGet("ideas/{ideaId}")]
     public async Task<IActionResult> GetUpdatesForIdea(string ideaId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
@@ -123,18 +81,39 @@ public class MainController : Controller
         return Ok(updates);
     }
 
-
-    [HttpPost("ideas/update/{ideaId}")]
+    /// <summary>
+    /// Update an existing idea
+    /// </summary>
+    /// <param name="ideaId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("ideas/{ideaId}/update")]
     public async Task<IActionResult> CreateUpdate(string ideaId, [FromBody] CreateStatusUpdateRequest request)
     {
         try
         {
-            var update = await _ideasBusinessManager.CreateUpdateAsync(ideaId, request);
+            var decodedId = Uri.UnescapeDataString(ideaId);
+            var update = await _ideasBusinessManager.CreateUpdateAsync(decodedId, request);
             return Ok(update);
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(ex.Message);
+        }
+    }
+
+    [HttpPost("ideas/update/{updateId}/seen")]
+    public async Task<IActionResult> MarkAsSeen(string updateId, [FromBody] SeenRequest request)
+    {
+        try
+        {
+            var decodedId = Uri.UnescapeDataString(updateId);
+            await _ideasBusinessManager.MarkUpdateAsSeenAsync(decodedId, request.UserId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 

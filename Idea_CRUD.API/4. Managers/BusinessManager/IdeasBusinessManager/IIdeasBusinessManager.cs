@@ -17,5 +17,7 @@ namespace Backend.Challenge.BusinessManager
         Task<List<StatusUpdate>> GetUpdatesForIdeaAsync(string ideaId, int pageNumber, int pageSize);
 
         Task<StatusUpdate> CreateUpdateAsync(string ideaId, CreateStatusUpdateRequest request);
+
+        Task MarkUpdateAsSeenAsync(string updateId, string userId);
     }
 }

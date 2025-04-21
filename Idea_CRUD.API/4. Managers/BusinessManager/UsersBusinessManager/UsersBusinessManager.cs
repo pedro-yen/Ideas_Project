@@ -12,9 +12,9 @@ namespace Backend.Challenge.BusinessManager
 {
     public class UsersBusinessManager : IUsersBusinessManager
     {
-        private IRepository _repository;
+        private IUserRepository _repository;
 
-        public UsersBusinessManager(IRepository repository)
+        public UsersBusinessManager(IUserRepository repository)
         {
             _repository = repository;
         }

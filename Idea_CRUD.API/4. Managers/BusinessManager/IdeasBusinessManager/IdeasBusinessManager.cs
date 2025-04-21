@@ -1,6 +1,7 @@
 ﻿using Backend.Challenge._1._Common.Contracts.Requests.Idea;
 using Backend.Challenge._2._Data.Repositories;
 using Backend.Challenge._2._Data.Repositories.DTOs;
+using Backend.Challenge._2._Data.Repositories.IdeaRepository;
 using Backend.Challenge._4._Managers.BusinessManager.Contracts.Validator;
 using Backend.Challenge.Data.Models;
 using Backend.Challenge.Dtos;
@@ -13,9 +14,9 @@ namespace Backend.Challenge.BusinessManager
 {
     public class IdeasBusinessManager : IIdeasBusinessManager
     {
-     private readonly IRepository _repository;
+     private readonly IIdeaRepository _repository;
 
-        public IdeasBusinessManager(IRepository repository)
+        public IdeasBusinessManager(IIdeaRepository repository)
         {
             _repository = repository;
         }
@@ -83,7 +84,7 @@ namespace Backend.Challenge.BusinessManager
                 Status = request.Status ?? latestUpdate.Status,
                 AuthorId = request.AuthorId,
                 PublishedAtUtc = DateTime.UtcNow,
-                SeenByUserIds = new List<string>()
+                SeenByUserIds = new Dictionary<string, DateTime> { }
             };
 
             newUpdate = await _repository.CreateStatusAsync(newUpdate);
@@ -94,6 +95,14 @@ namespace Backend.Challenge.BusinessManager
             return newUpdate;
 
 
+        }
+
+        public async Task MarkUpdateAsSeenAsync(string updateId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("User ID cannot be null or empty.");
+
+            await _repository.MarkAsSeenAsync(updateId, userId);
         }
     }
 }

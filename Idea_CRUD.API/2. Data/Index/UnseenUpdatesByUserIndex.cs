@@ -14,17 +14,17 @@ namespace Backend.Challenge._2._Data.Index
             public List<string> SeenByUserIds { get; set; }
         }
 
-        public UnseenUpdatesByUserIndex()
-        {
-            Map = statusUpdates => from status in statusUpdates
-                                   from userId in status.SeenByUserIds
-                                   where !status.SeenByUserIds.Contains(userId)  // Filter unseen updates
-                                   select new
-                                   {
-                                       status.IdeaId,
-                                       status.Id,
-                                       status.SeenByUserIds
-                                   };
-        }
+        //public UnseenUpdatesByUserIndex()
+        //{
+        //    Map = statusUpdates => from status in statusUpdates
+        //                           from userId in status.SeenByUserIds
+        //                           where !status.SeenByUserIds.Contains(userId)  // Filter unseen updates
+        //                           select new
+        //                           {
+        //                               status.IdeaId,
+        //                               status.Id,
+        //                               status.SeenByUserIds
+        //                           };
+        //}
     }
 }

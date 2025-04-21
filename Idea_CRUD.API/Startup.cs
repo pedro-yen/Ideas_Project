@@ -12,6 +12,7 @@ using Backend.Challenge._2._Data.Repositories;
 using FluentValidation.AspNetCore;
 using FluentValidation;
 using System.Text.Json.Serialization;
+using Backend.Challenge._2._Data.Repositories.IdeaRepository;
 
 namespace Backend.Challenge
 {
@@ -49,14 +50,13 @@ namespace Backend.Challenge
                 };
 
                 var initialized = false;
-                int retries = 5;
+                int retries = 3;
                 while (!initialized && retries-- > 0)
                 {
                     try
                     {
                         store.Initialize();
 
-                        // Check if the database exists
                         var dbNames = store.Maintenance.Server.Send(new GetDatabaseNamesOperation(0, 25));
                         if (!dbNames.Contains(databaseName))
                         {
@@ -69,16 +69,15 @@ namespace Backend.Challenge
                     catch
                     {
                         if (retries == 0) throw;
-                        System.Threading.Thread.Sleep(2000); // Wait for 2 seconds
+                        System.Threading.Thread.Sleep(2000);
                     }
                 }
-
-                // Only set this AFTER the DB is created
                 return store;
             });
             services.AddSingleton<IUsersBusinessManager, UsersBusinessManager>();
             services.AddSingleton<IIdeasBusinessManager, IdeasBusinessManager>();
-            services.AddSingleton<IRepository, MainRepository>();
+            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IIdeaRepository, IdeaRepository>();
             #endregion
 
             // Add Swagger services
