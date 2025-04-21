@@ -37,10 +37,14 @@ public class UserRepository : IUserRepository
     public async Task<List<User>> GetUsersByIdsAsync(string[] ids)
     {
         using var session = _store.OpenAsyncSession();
-        var usersDictionary = await session.LoadAsync<User>(ids); // Users dictionary with nulls for missing IDs
-        var users = usersDictionary.Values.Where(u => u != null).ToList(); // Filter out null values
 
-        return users;
+        var users = await session.LoadAsync<User>(ids);
+
+        // returns only the users that have valid id no null reference
+        return users.Values
+                    .Where(user => user != null)
+                    .ToList();
+
     }
     #endregion
 

@@ -1,6 +1,7 @@
 ﻿using Backend.Challenge.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
